@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cari Satu Lagu</title>
+</head>
+
+<body>
+    <main>
+        <h1>Cari Satu Lagu</h1>
+        <input id="q" placeholder="Contoh: lagu galau hujan malam hari">
+        <button id="go">Cari dan putar</button>
+        <div id="info"></div>
+        <div id="player"></div>
+    </main>
+    <script>
+        document.getElementById("go").onclick = async () => {
+            const q = document.getElementById("q").value.trim();
+            if (!q) return;
+            document.getElementById("info").textContent = "Mencari...";
+            document.getElementById("player").innerHTML = "";
+            try {
+                const response = await fetch("/api/play", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: q })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "Gagal");
+                document.getElementById("info").textContent = data.name + " - " + data.artists;
+                document.getElementById("player").innerHTML =
+                    '<iframe src="' + data.embed_url + '" allow="encrypted-media; autoplay" loading="lazy"></iframe>';
+            } catch (e) {
+                document.getElementById("info").textContent = "Error: " + e.message;
+            }
+        };
+    </script>
+</body>
+
+</html>
